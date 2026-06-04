@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Резюме — LLM Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --bg-card: #111827;
+      --bg-card-hover: #1a2332;
+      --border: rgba(99, 179, 237, 0.12);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-secondary: #818cf8;
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      --radius: 16px;
+      --nav-width: 260px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 2rem;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background decoration */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-1 { top: -200px; right: -100px; background: var(--accent); }
+    .bg-glow-2 { bottom: -200px; left: -100px; background: var(--accent-secondary); }
+
+    /* Layout */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--nav-width);
+      height: 100vh;
+      padding: 2rem 1.5rem;
+      border-right: 1px solid var(--border);
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform var(--transition);
+    }
+
+    .sidebar-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .sidebar-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      overflow: hidden;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 32px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .sidebar-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .sidebar-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-title {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 0.25rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      flex: 1;
+    }
+
+    .nav-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .nav-link.active {
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-footer {
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .print-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .print-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    /* Mobile menu toggle */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 200;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main content */
+    .main {
+      margin-left: var(--nav-width);
+      flex: 1;
+      padding: 2.5rem 3rem 4rem;
+      max-width: 900px;
+    }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards;
+    }
+
+    .hero-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hero-photo {
+      flex-shrink: 0;
+      width: 238px;
+      height: 238px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      box-shadow: 0 12px 40px var(--accent-glow);
+      background: var(--bg-card);
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      font-size: 0.8rem; 
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 2s infinite;
+    }
+
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 600px;
+    }
+
+    /* Section cards */
+    .section {
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.25);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .card-content {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .card-content p {
+      margin-bottom: 0.75rem;
+    }
+
+    .card-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-name {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 0;
+    }
+
+    .about-details-top {
+      margin-top: 1.25rem;
+    }
+
+    .about-summary {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .about-summary p {
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .about-details {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .about-detail-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .about-detail-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .about-contacts {
+      margin-top: 0.25rem;
+    }
+
+    .placeholder-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px dashed rgba(251, 191, 36, 0.3);
+      color: #fbbf24;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    /* Position block */
+    .position-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .position-item {
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.04);
+      border: 1px solid var(--border);
+    }
+
+    .position-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .position-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Skills */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .skill-group {
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid var(--border);
+      transition: transform var(--transition), border-color var(--transition);
+    }
+
+    .skill-group:hover {
+      transform: translateY(-2px);
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .skill-group-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .skill-tag {
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(129, 140, 248, 0.1);
+      border: 1px solid rgba(129, 140, 248, 0.15);
+      font-size: 0.8rem;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      transition: all var(--transition);
+      cursor: default;
+    }
+
+    .skill-tag:hover {
+      background: rgba(129, 140, 248, 0.2);
+      border-color: rgba(129, 140, 248, 0.3);
+      transform: scale(1.05);
+    }
+
+    .skill-tag.highlight {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.25);
+      color: var(--accent);
+    }
+
+    /* Experience timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent-secondary), transparent);
+      border-radius: 2px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-item:hover {
+      border-color: rgba(56, 189, 248, 0.2);
+      transform: translateX(4px);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.65rem;
+      top: 1.5rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      transition: background var(--transition);
+    }
+
+    .timeline-item:hover::before {
+      background: var(--accent);
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-role {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .timeline-company {
+      color: var(--accent);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .timeline-period {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    .timeline-duties-intro {
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .timeline-desc ul {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .timeline-desc li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .timeline-desc li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    /* Education */
+    .edu-item {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .edu-item:hover {
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .edu-item + .edu-item {
+      margin-top: 1rem;
+    }
+
+    .edu-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(129, 140, 248, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .edu-degree {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .edu-major {
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .edu-school {
+      color: var(--accent-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .edu-period {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 0.25rem;
+    }
+
+    /* Achievements */
+    .achievements-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .achievement-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .achievement-item:hover {
+      border-color: rgba(251, 191, 36, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .achievement-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .achievement-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .achievement-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Additional info */
+    .info-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      transition: all var(--transition);
+    }
+
+    .info-item:hover {
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+
+    .info-label {
+      color: var(--text-muted);
+      min-width: 140px;
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .info-value {
+      color: var(--text);
+    }
+
+    .info-value a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity var(--transition);
+    }
+
+    .info-value a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    .additional-subsection {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .additional-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 5rem 1.5rem 3rem;
+      }
+
+      .hero {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: center;
+      }
+
+      .hero-photo {
+        width: 185px;
+        height: 185px;
+      }
+
+      .hero-subtitle {
+        max-width: 100%;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .skills-grid,
+      .position-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-label {
+        min-width: 100px;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      .sidebar, .menu-toggle, .bg-grid, .bg-glow, .print-btn, .placeholder-hint {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+        color: #111;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 1rem;
+        max-width: 100%;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .card-content, .timeline-desc, .achievement-desc, .info-value {
+        color: #333;
+      }
+
+      .section {
+        opacity: 1;
+        transform: none;
+      }
+
+      .skill-tag {
+        border: 1px solid #ccc;
+        background: #f5f5f5;
+        color: #111;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Меню">☰</button>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-avatar">
+          <img src="Avatar.jpg" alt="Насибов Михаил Эмзарович">
+        </div>
+        <div class="sidebar-name" id="sidebarName">Михаил Насибов</div>
+        <div class="sidebar-title">LLM Engineer</div>
+      </div>
+
+      <ul class="nav-list">
+        <li><a class="nav-link active" href="#about" data-section="about"><span class="nav-icon">👤</span> О себе</a></li>
+        <li><a class="nav-link" href="#position" data-section="position"><span class="nav-icon">💼</span> Должность</a></li>
+        <li><a class="nav-link" href="#skills" data-section="skills"><span class="nav-icon">⚡</span> Навыки</a></li>
+        <li><a class="nav-link" href="#experience" data-section="experience"><span class="nav-icon">🏢</span> Опыт</a></li>
+        <li><a class="nav-link" href="#education" data-section="education"><span class="nav-icon">🎓</span> Образование</a></li>
+        <li><a class="nav-link" href="#additional" data-section="additional"><span class="nav-icon">📋</span> Доп. информация</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="print-btn" onclick="window.print()">🖨️ Сохранить в PDF</button>
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Hero -->
+      <header class="hero">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Открыт к предложениям
+          </div>
+          <h1><span>LLM Engineer</span></h1>
+          <p class="hero-subtitle">Разработка AI-агентов, RAG-систем и интеграция LLM в production</p>
+        </div>
+        <div class="hero-photo">
+          <img src="Avatar.jpg" alt="Насибов Михаил Эмзарович">
+        </div>
+      </header>
+
+      <!-- О себе -->
+      <section class="section" id="about">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">👤</div>
+            <h2 class="card-title">О себе</h2>
+          </div>
+          <div class="card-content">
+            <p class="about-name">Насибов Михаил Эмзарович</p>
+            <div class="about-details about-details-top">
+              <div>
+                <div class="about-detail-label">Контактная информация</div>
+                <div class="info-list about-contacts">
+                  <div class="info-item">
+                    <span class="info-label">Телефон</span>
+                    <span class="info-value"><a href="tel:+79645683322">+7 (964) 5683322</a></span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Почта</span>
+                    <span class="info-value"><a href="mailto:nasibovmisha2001@mail.ru">nasibovmisha2001@mail.ru</a></span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Telegram</span>
+                    <span class="info-value"><a href="https://t.me/arhonx" target="_blank" rel="noopener noreferrer">@arhonx</a></span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">GitHub</span>
+                    <span class="info-value"><a href="https://github.com/Arhons" target="_blank" rel="noopener noreferrer">github.com/Arhons</a></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="about-summary">
+              <p>
+                Специализируюсь на NLP и LLM: проектирую и разрабатываю AI-агентов для прикладных бизнес-задач —
+                от прототипа до интеграции в backend. Опираюсь на понимание архитектур Transformer, embeddings
+                и self-attention при выборе модели и построении пайплайнов.
+              </p>
+              <p>
+                Разрабатываю логику агентов на <strong>LangGraph</strong> и LangChain:
+                agentic loop, паттерны <strong>ReAct</strong> и workflow-графы, <strong>tool calls</strong> и связку
+                с сервисами через <strong>API</strong>. Собираю и оптимизирую <strong>RAG</strong>-модули
+                (классический и agentic): векторный поиск, chunking, управление контекстом через
+                <strong>prompt engineering</strong> и <strong>context engineering</strong>.
+              </p>
+              <p>
+                Работаю с LLM API, inference (<strong>vLLM</strong>), дообучением и квантизацией моделей; опыт в
+                speech NLP (<strong>Whisper</strong>, diarization). Ускоряю цикл «идея → работающий агент» с
+                <strong>Cursor</strong> и <strong>Claude Code</strong>. Стек: Git, Docker, SQL, FastAPI, PyTorch, Airflow.
+              </p>
+              <p>
+                Также занимался классическим ML: разработал recsys на основе content-based подхода.
+              </p>
+            </div>
+            <div class="about-details">
+              <div>
+                <div class="about-detail-label">Опыт работы</div>
+                <div class="about-detail-value">6 месяцев</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Желаемая должность -->
+      <section class="section" id="position">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">💼</div>
+            <h2 class="card-title">Желаемая должность и занятость</h2>
+          </div>
+          <div class="card-content">
+            <div class="position-grid">
+              <div class="position-item">
+                <div class="position-label">Должность</div>
+                <div class="position-value">LLM Engineer / AI Agents Developer</div>
+              </div>
+              <div class="position-item">
+                <div class="position-label">Занятость</div>
+                <div class="position-value">Полная занятость</div>
+              </div>
+              <div class="position-item">
+                <div class="position-label">Формат работы</div>
+                <div class="position-value">Не имеет значения</div>
+              </div>
+              <div class="position-item">
+                <div class="position-label">График</div>
+                <div class="position-value">Полный день</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Навыки -->
+      <section class="section" id="skills">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">⚡</div>
+            <h2 class="card-title">Навыки</h2>
+          </div>
+          <div class="card-content">
+            <div class="skills-grid">
+              <div class="skill-group">
+                <div class="skill-group-title">Языки и инструменты</div>
+                <div class="skill-tags">
+                  <span class="skill-tag highlight">Python</span>
+                  <span class="skill-tag highlight">Git</span>
+                  <span class="skill-tag highlight">Docker</span>
+                  <span class="skill-tag">SQL</span>
+                  <span class="skill-tag">FastAPI</span>
+                  <span class="skill-tag">Airflow</span>
+                  <span class="skill-tag">scikit-learn</span>
+                  <span class="skill-tag">PyTorch</span>
+                  <span class="skill-tag">SQLAlchemy</span>
+                  <span class="skill-tag">Cursor</span>
+                  <span class="skill-tag">Claude Code</span>
+                </div>
+              </div>
+              <div class="skill-group">
+                <div class="skill-group-title">LLM / NLP</div>
+                <div class="skill-tags">
+                  <span class="skill-tag highlight">LLM API</span>
+                  <span class="skill-tag">Prompt engineering</span>
+                  <span class="skill-tag">Context engineering</span>
+                  <span class="skill-tag">Embeddings</span>
+                  <span class="skill-tag">Transformer</span>
+                  <span class="skill-tag">Self-attention</span>
+                  <span class="skill-tag">vLLM</span>
+                  <span class="skill-tag">Fine-tuning</span>
+                  <span class="skill-tag">Quantization</span>
+                  <span class="skill-tag">Whisper</span>
+                  <span class="skill-tag">Diarization</span>
+                </div>
+              </div>
+              <div class="skill-group">
+                <div class="skill-group-title">AI-агенты</div>
+                <div class="skill-tags">
+                  <span class="skill-tag highlight">LangGraph</span>
+                  <span class="skill-tag highlight">LangChain</span>
+                  <span class="skill-tag">ReAct</span>
+                  <span class="skill-tag">Plan-and-Execute</span>
+                  <span class="skill-tag highlight">Tool calls</span>
+                  <span class="skill-tag">Agentic loop</span>
+                </div>
+              </div>
+              <div class="skill-group">
+                <div class="skill-group-title">RAG</div>
+                <div class="skill-tags">
+                  <span class="skill-tag highlight">Classic RAG</span>
+                  <span class="skill-tag highlight">Agentic RAG</span>
+                  <span class="skill-tag">Vector search</span>
+                  <span class="skill-tag">Qdrant</span>
+                  <span class="skill-tag">Chunking strategies</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Опыт работы -->
+      <section class="section" id="experience">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🏢</div>
+            <h2 class="card-title">Опыт работы</h2>
+          </div>
+          <div class="card-content">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div>
+                    <div class="timeline-role">ML Engineer</div>
+                  </div>
+                  <div class="timeline-period">2025</div>
+                </div>
+                <div class="timeline-desc">
+                  <p class="timeline-duties-intro">Разрабатывал recsys-сервис по рекомендации постов в соцсети пользователям:</p>
+                  <ul>
+                    <li>5 млн действий пользователей</li>
+                    <li>предобработка данных, векторизация с помощью tf-idf, алгоритмы сжатия и кластеризации</li>
+                    <li>content-based подход</li>
+                    <li>модель градиентного бустинга</li>
+                    <li>метрика ROC AUC</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div>
+                    <div class="timeline-role">RAG система</div>
+                  </div>
+                  <div class="timeline-period">2025</div>
+                </div>
+                <div class="timeline-desc">
+                  <p class="timeline-duties-intro">Проектировал QA-систему на основе RAG для вопросов по ПДД РФ</p>
+                  <ul>
+                    <li>интегрировал систему с <strong>GigaChat API</strong>: реализовал взаимодействие RAG-пайплайна с языковой моделью для формирования ответов на пользовательские запросы по нормативной базе ПДД</li>
+                    <li>подготовил корпус нормативных материалов, разбил документы на семантические фрагменты, построил векторный индекс для retrieval и организовал кэширование результатов для снижения задержки при повторных обращениях</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div>
+                    <div class="timeline-role">LLM / NLP Engineer</div>
+                    <div class="timeline-company">ООО "Ударник"</div>
+                  </div>
+                  <div class="timeline-period">2025 — 2026</div>
+                </div>
+                <div class="timeline-desc">
+                  <p class="timeline-duties-intro">В круг моих должностных обязанностей входили:</p>
+                  <ul>
+                    <li>разработал дополнительный функционал для агентной системы</li>
+                    <li>выполнял промпт-инжиниринг</li>
+                    <li>исправлял ошибки в существующем коде</li>
+                    <li>взаимодействовал с командой разработчиков и своим наставником</li>
+                    <li>разработал AI-агентов на <strong>LangGraph</strong> с паттерном <strong>ReAct</strong> и agentic loop</li>
+                    <li>спроектировал и оптимизировал RAG-модули (classic & agentic), что повысило точность ответов LLM на 25%</li>
+                    <li>проводил <strong>prompt engineering</strong> и context engineering для управления контекстом LLM</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-header">
+                  <div>
+                    <div class="timeline-role">ASR service</div>
+                  </div>
+                  <div class="timeline-period">2026</div>
+                </div>
+                <div class="timeline-desc">
+                  <p>
+                    Разработал full-stack веб-сервис для автоматического распознавания речи и определения спикеров
+                    в аудиозаписях длительностью до 2–3 часов. Сервис оптимизирован для работы на CPU без GPU
+                    с ограничением в 8 ГБ оперативной памяти.
+                  </p>
+                  <p class="timeline-duties-intro">Ключевые задачи и решения:</p>
+                  <ul>
+                    <li>спроектировал и реализовал backend на <strong>FastAPI</strong> с асинхронной обработкой задач и потоковой передачей прогресса через Server-Sent Events (SSE)</li>
+                    <li>построил пайплайн обработки на базе <strong>faster-whisper</strong> (транскрибация) и <strong>Silero VAD</strong> (диаризация), применив последовательную загрузку/выгрузку моделей для снижения пикового потребления памяти на ~40%</li>
+                    <li>реализовал лёгкую альтернативу pyannote.audio: связку VAD + извлечение MFCC-признаков + кластеризацию (<strong>scikit-learn</strong>) с автоматической оценкой качества разделения спикеров (silhouette score)</li>
+                    <li>разработал фронтенд с drag-and-drop загрузкой, прогресс-баром и таймером обработки в реальном времени</li>
+                    <li>добавил экспорт результатов в форматы TXT, SRT и JSON</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Образование -->
+      <section class="section" id="education">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🎓</div>
+            <h2 class="card-title">Образование</h2>
+          </div>
+          <div class="card-content">
+            <div class="edu-item">
+              <div class="edu-icon">🎓</div>
+              <div>
+                <div class="edu-degree">Бакалавриат</div>
+                <div class="edu-major">Институт компьютерных наук, прикладная математика</div>
+                <div class="edu-school">НИТУ МИСиС</div>
+                <div class="edu-period">2020-2024</div>
+              </div>
+            </div>
+            <div class="edu-item">
+              <div class="edu-icon">🎓</div>
+              <div>
+                <div class="edu-degree">Магистратура</div>
+                <div class="edu-major">Институт компьютерных наук, искусственный интеллект и машинное обучение</div>
+                <div class="edu-school">НИТУ МИСиС</div>
+                <div class="edu-period">2024-2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Дополнительная информация -->
+      <section class="section" id="additional">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📋</div>
+            <h2 class="card-title">Дополнительная информация</h2>
+          </div>
+          <div class="card-content">
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-label">Языки</span>
+                <span class="info-value">Русский — родной, English — B2</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">GitHub</span>
+                <span class="info-value"><a href="https://github.com/Arhons" target="_blank" rel="noopener noreferrer">github.com/Arhons</a></span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Город</span>
+                <span class="info-value">Москва</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Переезд</span>
+                <span class="info-value">Возможен</span>
+              </div>
+            </div>
+
+            <div class="additional-subsection" id="achievements">
+              <h3 class="additional-subtitle">🏆 Достижения</h3>
+              <div class="achievements-grid">
+                <div class="achievement-item">
+                  <div class="achievement-icon">🏆</div>
+                  <div>
+                    <div class="achievement-title">Garpix</div>
+                    <div class="achievement-desc">GLS-хакатон «Алгоритмы для логистики» в номинации «Задача о рюкзаке»</div>
+                  </div>
+                </div>
+                <div class="achievement-item">
+                  <div class="achievement-icon">🎓</div>
+                  <div>
+                    <div class="achievement-title">Педагогическая практика</div>
+                    <div class="achievement-desc">Координировал студентов младших курсов в решении задачи построения LLM-сервиса, составлял документацию к проекту в формате Doxygen</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Scroll-triggered section animations
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.section === id);
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => sectionObserver.observe(section));
+
+    // Mobile menu
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+      });
+    });
+
+    // Skill tag ripple effect
+    document.querySelectorAll('.skill-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        tag.style.transform = 'scale(0.95)';
+        setTimeout(() => { tag.style.transform = ''; }, 150);
+      });
+    });
+  </script>
+
+</body>
+</html>
