@@ -70,6 +70,124 @@
     .bg-glow-1 { top: -200px; right: -100px; background: var(--accent); }
     .bg-glow-2 { bottom: -200px; left: -100px; background: var(--accent-secondary); }
 
+    /* Animated neural-network canvas background */
+    #neural-bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* Cursor-following glow */
+    .cursor-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.4s ease;
+      opacity: 0;
+      will-change: transform;
+    }
+
+    /* Reading progress bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: var(--gradient);
+      z-index: 300;
+      box-shadow: 0 0 12px var(--accent-glow);
+      transition: width 0.1s linear;
+    }
+
+    /* Scroll to top button */
+    .scroll-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      color: var(--accent);
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 250;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all var(--transition);
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .scroll-top:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      transform: translateY(-3px);
+    }
+
+    /* Typing caret */
+    .type-caret {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: caretBlink 1s step-end infinite;
+    }
+
+    @keyframes caretBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Hero stats */
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.75rem;
+      margin-top: 1.75rem;
+    }
+
+    .hero-stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .hero-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
     /* Layout */
     .layout {
       position: relative;
@@ -313,16 +431,48 @@
     }
 
     .card {
-      background: var(--bg-card);
+      position: relative;
+      background: rgba(17, 24, 39, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 2rem;
+      overflow: hidden;
       transition: border-color var(--transition), box-shadow var(--transition);
     }
 
+    /* Cursor-tracked glow inside cards */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(56, 189, 248, 0.10),
+        transparent 40%
+      );
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 1;
+    }
+
     .card:hover {
-      border-color: rgba(56, 189, 248, 0.25);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+      border-color: rgba(56, 189, 248, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     }
 
     .card-header {
@@ -857,9 +1007,17 @@
 
     /* Print styles */
     @media print {
-      .sidebar, .menu-toggle, .bg-grid, .bg-glow, .print-btn, .placeholder-hint {
+      .sidebar, .menu-toggle, .bg-grid, .bg-glow, .print-btn, .placeholder-hint,
+      #neural-bg, .cursor-glow, .reading-progress, .scroll-top {
         display: none !important;
       }
+
+      .card {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      .card::before { display: none; }
 
       body {
         background: #fff;
@@ -898,11 +1056,15 @@
 </head>
 <body>
 
+  <div class="reading-progress" id="readingProgress"></div>
+  <canvas id="neural-bg"></canvas>
+  <div class="cursor-glow" id="cursorGlow"></div>
   <div class="bg-grid"></div>
   <div class="bg-glow bg-glow-1"></div>
   <div class="bg-glow bg-glow-2"></div>
 
   <button class="menu-toggle" id="menuToggle" aria-label="Меню">☰</button>
+  <button class="scroll-top" id="scrollTop" aria-label="Наверх">↑</button>
 
   <div class="layout">
     <!-- Sidebar -->
@@ -940,7 +1102,25 @@
             Открыт к предложениям
           </div>
           <h1><span>LLM Engineer</span></h1>
-          <p class="hero-subtitle">Разработка AI-агентов, RAG-систем и интеграция LLM в production</p>
+          <p class="hero-subtitle" id="heroSubtitle" data-text="Разработка AI-агентов, RAG-систем и интеграция LLM в production"></p>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="6" data-suffix=" мес">0</div>
+              <div class="hero-stat-label">опыт разработки</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="3" data-suffix="">0</div>
+              <div class="hero-stat-label">проекта</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="25" data-suffix="%">0</div>
+              <div class="hero-stat-label">прирост точности RAG</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value" data-count="5" data-suffix="M+">0</div>
+              <div class="hero-stat-label">обработанных действий</div>
+            </div>
+          </div>
         </div>
         <div class="hero-photo">
           <img src="Avatar.jpg" alt="Насибов Михаил Эмзарович">
@@ -1309,6 +1489,169 @@
         setTimeout(() => { tag.style.transform = ''; }, 150);
       });
     });
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---------- Animated neural-network background ---------- */
+    (function neuralBackground() {
+      const canvas = document.getElementById('neural-bg');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height, particles, animationId;
+      const isMobile = window.innerWidth < 768;
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        const density = isMobile ? 14000 : 9000;
+        const count = Math.min(110, Math.floor((width * height) / density));
+        particles = Array.from({ length: count }, () => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 1.6 + 0.6
+        }));
+      }
+
+      const mouse = { x: null, y: null };
+      window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const linkDist = isMobile ? 110 : 140;
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+          ctx.fill();
+
+          for (let j = i + 1; j < particles.length; j++) {
+            const q = particles[j];
+            const dx = p.x - q.x, dy = p.y - q.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < linkDist) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.strokeStyle = 'rgba(99, 179, 237, ' + (0.18 * (1 - dist / linkDist)) + ')';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+
+          if (mouse.x !== null) {
+            const dxm = p.x - mouse.x, dym = p.y - mouse.y;
+            const dm = Math.hypot(dxm, dym);
+            if (dm < 170) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(mouse.x, mouse.y);
+              ctx.strokeStyle = 'rgba(129, 140, 248, ' + (0.35 * (1 - dm / 170)) + ')';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+        animationId = requestAnimationFrame(draw);
+      }
+
+      resize();
+      if (!reduceMotion) {
+        draw();
+      } else {
+        draw(); cancelAnimationFrame(animationId);
+      }
+      window.addEventListener('resize', () => { cancelAnimationFrame(animationId); resize(); if (!reduceMotion) draw(); });
+    })();
+
+    /* ---------- Cursor-following glow + card glow ---------- */
+    (function cursorEffects() {
+      const glow = document.getElementById('cursorGlow');
+      const cards = document.querySelectorAll('.card');
+      window.addEventListener('mousemove', e => {
+        if (glow) {
+          glow.style.opacity = '1';
+          glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+        }
+        cards.forEach(card => {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+          card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+        });
+      });
+    })();
+
+    /* ---------- Typing effect in hero ---------- */
+    (function typingEffect() {
+      const el = document.getElementById('heroSubtitle');
+      if (!el) return;
+      const text = el.dataset.text || '';
+      if (reduceMotion) { el.textContent = text; return; }
+      const caret = document.createElement('span');
+      caret.className = 'type-caret';
+      el.textContent = '';
+      el.appendChild(caret);
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          caret.insertAdjacentText('beforebegin', text.charAt(i));
+          i++;
+          setTimeout(type, 38);
+        } else {
+          setTimeout(() => caret.remove(), 1800);
+        }
+      }
+      setTimeout(type, 500);
+    })();
+
+    /* ---------- Animated counters ---------- */
+    (function counters() {
+      const stats = document.querySelectorAll('.hero-stat-value');
+      function animate(el) {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        if (reduceMotion) { el.textContent = target + suffix; return; }
+        const duration = 1400;
+        const start = performance.now();
+        function step(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+      const obs = new IntersectionObserver((entries, o) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { animate(entry.target); o.unobserve(entry.target); }
+        });
+      }, { threshold: 0.5 });
+      stats.forEach(s => obs.observe(s));
+    })();
+
+    /* ---------- Reading progress + scroll to top ---------- */
+    (function scrollUI() {
+      const bar = document.getElementById('readingProgress');
+      const btn = document.getElementById('scrollTop');
+      function onScroll() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        if (bar) bar.style.width = pct + '%';
+        if (btn) btn.classList.toggle('visible', scrollTop > 400);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+      if (btn) btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    })();
   </script>
 
 </body>
