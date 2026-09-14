@@ -88,6 +88,8 @@
   html[data-motion="on"] .contact::before{animation:orbit 45s linear infinite}
   html[data-motion="on"] .contact::after{animation:orbit 60s linear infinite reverse}
   html[data-motion="on"] .reveal-pending{opacity:0;transform:translate3d(0,24px,0)}
+  html[data-motion="on"] .card-header .card-title,html[data-motion="on"] .card-header .card-icon{animation:heading-breathe 5s ease-in-out infinite}
+  @keyframes heading-breathe{0%,100%{opacity:1}50%{opacity:.74}}
   html[data-motion="on"] .reveal{animation:section-arrive .9s cubic-bezier(.2,.7,.2,1) both}
   html[data-motion="on"] .timeline-item:nth-child(2).reveal{animation-delay:.1s}
   html[data-motion="on"] .timeline-item:nth-child(3).reveal{animation-delay:.2s}
