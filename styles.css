@@ -112,6 +112,8 @@
   .site-header nav a::after{background:#d7ef8a}
   .site-header a:hover{color:#d7ef8a}
   .site-header a:focus-visible{outline:2px solid #d7ef8a;outline-offset:5px;border-radius:3px}
+  .card-header{background:#192820;color:#f5f5ef;padding:16px 20px;border-radius:5px}
+  .card-header .card-icon{background:#d7ef8a;color:#192820;border-color:#d7ef8a;box-shadow:none}
 }
 @media screen{
   .hero{position:relative;isolation:isolate}
