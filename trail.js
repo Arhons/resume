@@ -5,7 +5,7 @@
   const root = document.documentElement;
   const pointer = matchMedia('(hover: hover) and (pointer: fine)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const sources = ['agent.jpg', 'huggingface.svg', 'github.svg', 'ollama.png', 'transformer.jpg', 'user.jpg'].map(name => `assets/trail-${name}`);
+  const sources = ['agent.jpg', 'huggingface.svg', 'github.svg', 'ollama.png', 'transformer.jpg', 'user.jpg', 'mcp.png'].map(name => `assets/trail-${name}`);
   const active = [];
   let images = [];
   let loading;
