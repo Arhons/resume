@@ -104,6 +104,16 @@
 
 /* Image trail is clipped to the first block and painted behind its contents. */
 @media screen{
+  .site-header{background:#192820;color:#f5f5ef;border-bottom-color:#3d5144}
+  .site-header .wordmark small{color:#b9cabc}
+  .site-header .brand-mark{background:#d7ef8a;color:#192820}
+  .site-header .brand-mark span{color:#192820}
+  .site-header .header-contact,.site-header .header-contact span{color:#d7ef8a}
+  .site-header nav a::after{background:#d7ef8a}
+  .site-header a:hover{color:#d7ef8a}
+  .site-header a:focus-visible{outline:2px solid #d7ef8a;outline-offset:5px;border-radius:3px}
+}
+@media screen{
   .hero{position:relative;isolation:isolate}
   .hero-trail{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1;opacity:.44;contain:paint; border-radius:8px}
   .hero-trail-card{position:absolute;width:clamp(144.5px,17vw,238px);aspect-ratio:3/2;background-size:cover;background-position:center;border:1px solid #91a4a055;border-radius:6px;box-shadow:0 14px 35px #10201830;pointer-events:none;opacity:0}
