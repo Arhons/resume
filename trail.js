@@ -1,11 +1,11 @@
-// Decorative cursor image trail. All pictures are illustrative technical workspaces.
+// Decorative cursor image trail: code, tool logos, and supplied AI illustrations.
 (() => {
   const hero = document.querySelector('.hero');
   const layer = hero.querySelector('.hero-trail');
   const root = document.documentElement;
   const pointer = matchMedia('(hover: hover) and (pointer: fine)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const sources = ['agent', 'terminal', 'rag', 'speech'].map(name => `assets/trail-${name}.jpg`);
+  const sources = ['agent.jpg', 'huggingface.svg', 'github.svg', 'ollama.png', 'transformer.jpg', 'user.jpg'].map(name => `assets/trail-${name}`);
   const active = [];
   let images = [];
   let loading;
@@ -25,7 +25,7 @@
     if (loading || !enabled()) return;
     loading = Promise.all(sources.map(src => new Promise(resolve => {
       const image = new Image();
-      image.onload = () => resolve(src);
+      image.onload = () => resolve({ src, ratio: image.naturalWidth / image.naturalHeight });
       image.onerror = () => resolve(null);
       image.src = src;
     }))).then(ready => { images = ready.filter(Boolean); });
@@ -43,7 +43,12 @@
     if (active.length >= 8) { const oldest = active.shift(); oldest.animation.cancel(); oldest.node.remove(); }
     const node = document.createElement('div');
     node.className = 'hero-trail-card';
-    node.style.backgroundImage = `url("${images[index % images.length]}")`;
+    const picture = images[index % images.length];
+    node.style.backgroundImage = `url("${picture.src}")`;
+    const logo = /huggingface|github|ollama/.test(picture.src);
+    node.style.aspectRatio = logo ? '1' : String(picture.ratio);
+    if (logo) node.classList.add('hero-trail-logo');
+    if (picture.ratio < 1 && !logo) node.style.width = '220px';
     node.style.left = `${x}px`;
     node.style.top = `${y}px`;
     node.style.zIndex = String(++depth);
