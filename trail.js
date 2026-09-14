@@ -48,7 +48,7 @@
     const logo = /huggingface|github|ollama/.test(picture.src);
     node.style.aspectRatio = logo ? '1' : String(picture.ratio);
     if (logo) node.classList.add('hero-trail-logo');
-    if (picture.ratio < 1 && !logo) node.style.width = '220px';
+    if (picture.ratio < 1 && !logo) node.style.width = '187px';
     node.style.left = `${x}px`;
     node.style.top = `${y}px`;
     node.style.zIndex = String(++depth);
