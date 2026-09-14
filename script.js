@@ -30,28 +30,43 @@
     context.clearRect(0, 0, width, height);
     const time = elapsed / 1000;
     const small = width < 761;
-    const count = small ? 10 : 18;
-    // A slowly turning field of curved paths, with travelling points of light.
+    // Quiet circuit traces and a sparse dot grid, concentrated at the edges.
+    const spacing = small ? 64 : 56;
+    context.fillStyle = 'rgba(44,108,75,.075)';
+    for (let x = 24; x < width; x += spacing) {
+      if (x > width * .24 && x < width * .76) continue;
+      for (let y = 24; y < height; y += spacing) context.fillRect(x, y, 1, 1);
+    }
+    const count = small ? 4 : 6;
     for (let lane = 0; lane < count; lane++) {
-      const side = lane % 2 ? 1 : -1;
-      const base = side > 0 ? width * .91 : width * .08;
-      const spread = (lane / count - .5) * (small ? 230 : 530);
-      const offset = Math.sin(time * .16 + lane * .2) * 35;
-      const point = progress => {
-        const wave = Math.sin(progress * Math.PI * 1.5 + time * .12 + lane * .06);
-        return { x: base + spread + wave * (small ? 60 : 120) + offset, y: progress * (height + 120) - 60 };
-      };
+      const right = lane % 2 === 1;
+      const inset = 18 + Math.floor(lane / 2) * (small ? 22 : 42);
+      const x = right ? width - inset : inset;
+      const bend = x + (right ? -1 : 1) * (small ? 24 : 48);
+      const y1 = height * (.2 + lane * .055);
+      const y2 = height * (.59 + lane * .045);
+      const points = [[x, -40], [x, y1], [bend, y1], [bend, y2], [x, y2], [x, height + 40]];
       context.beginPath();
-      for (let step = 0; step <= 40; step++) {
-        const p = point(step / 40);
-        if (step === 0) context.moveTo(p.x, p.y); else context.lineTo(p.x, p.y);
-      }
-      context.strokeStyle = `rgba(44,108,75,${small ? .07 : .09})`;
-      context.lineWidth = .7;
+      points.forEach(([px, py], i) => i ? context.lineTo(px, py) : context.moveTo(px, py));
+      context.strokeStyle = 'rgba(44,108,75,.10)';
+      context.lineWidth = .75;
       context.stroke();
-      const p = point((time * .026 + lane * .173) % 1);
-      context.beginPath(); context.arc(p.x, p.y, lane % 3 === 0 ? 2.5 : 1.5, 0, Math.PI * 2);
-      context.fillStyle = 'rgba(45,116,73,.38)'; context.fill();
+      for (const [px, py] of [points[2], points[3]]) {
+        context.beginPath(); context.arc(px, py, 2.5, 0, Math.PI * 2);
+        context.fillStyle = '#f5f5ef'; context.fill();
+        context.strokeStyle = 'rgba(44,108,75,.20)'; context.stroke();
+      }
+      const lengths = points.slice(1).map(([px, py], i) => Math.abs(px - points[i][0]) + Math.abs(py - points[i][1]));
+      let distance = ((time * .018 + lane * .167) % 1) * lengths.reduce((sum, length) => sum + length, 0);
+      for (let segment = 0; segment < lengths.length; segment++) {
+        if (distance > lengths[segment]) { distance -= lengths[segment]; continue; }
+        const amount = distance / lengths[segment];
+        const px = points[segment][0] + (points[segment + 1][0] - points[segment][0]) * amount;
+        const py = points[segment][1] + (points[segment + 1][1] - points[segment][1]) * amount;
+        context.fillStyle = 'rgba(45,116,73,.32)';
+        context.fillRect(px - 1.5, py - 1.5, 3, 3);
+        break;
+      }
     }
     // The cursor glow is painted behind all content.
     if (finePointer.matches && pointer.x >= 0) {
