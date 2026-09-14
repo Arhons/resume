@@ -72,6 +72,7 @@
   const syncMotion = () => {
     const active = running();
     root.dataset.motion = active ? 'on' : 'off';
+    if (!active) document.querySelectorAll('.reveal').forEach(item => item.classList.remove('reveal'));
     toggle.setAttribute('aria-pressed', String(enabled && !preference.matches));
     toggle.querySelector('.motion-label').textContent = enabled && !preference.matches ? 'Анимация: вкл' : 'Анимация: выкл';
     toggle.querySelector('.motion-symbol').textContent = enabled && !preference.matches ? 'Ⅱ' : '▷';
@@ -121,14 +122,34 @@
   updateProgress();
 
   if ('IntersectionObserver' in window) {
+    document.addEventListener('animationend', event => {
+      if (event.animationName === 'section-arrive') event.target.classList.remove('reveal');
+    });
+    const showSection = (item, animate = true) => {
+      const pending = item.classList.contains('reveal-pending');
+      item.classList.remove('reveal-pending');
+      if (pending && animate && running()) item.classList.add('reveal');
+      if (!animate) item.classList.remove('reveal');
+      reveal.unobserve(item);
+    };
     const reveal = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        if (running()) entry.target.classList.add('reveal');
-        reveal.unobserve(entry.target);
+        showSection(entry.target);
       });
-    }, { threshold: .08 });
-    document.querySelectorAll('.timeline-item, .section:not(#experience), .contact').forEach(item => reveal.observe(item));
+    }, { threshold: 0, rootMargin: '0px 0px -32px 0px' });
+    document.querySelectorAll('.section, #achievements, .contact').forEach(item => {
+      if (item.getBoundingClientRect().top >= window.innerHeight) {
+        item.classList.add('reveal-pending');
+        reveal.observe(item);
+      }
+    });
+    // Keyboard navigation must never land in an invisible section.
+    document.addEventListener('focusin', event => {
+      for (let item = event.target; item instanceof Element; item = item.parentElement) {
+        if (item.matches('.reveal-pending, .reveal')) showSection(item, false);
+      }
+    });
     const links = [...document.querySelectorAll('nav a')];
     const active = new IntersectionObserver(entries => {
       entries.forEach(entry => {
