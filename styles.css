@@ -126,6 +126,7 @@
   .hero-copy .button{text-shadow:none}
   .hero-trail-card{background-size:contain;background-repeat:no-repeat;background-color:#fff}
   .hero-trail-logo{background-size:65% auto;background-color:transparent;border:0;border-radius:0;box-shadow:none}
+  .hero-trail-cutout{background-color:transparent;border:0;border-radius:0;box-shadow:none}
   .hero-copy .hero-subtitle,.hero-copy .hero-footnote,.hero-copy .hero-footnote span,.hero-copy .eyebrow-location,.hero-copy h1{color:var(--ink)}
   .hero-copy .hero-headline em{text-shadow:0 0 2px #f5f5ef,0 0 4px #f5f5ef,0 0 8px #f5f5ef,0 0 12px #f5f5ef}
   .hero-visual{z-index:1}

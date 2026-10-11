@@ -5,7 +5,7 @@
   const root = document.documentElement;
   const pointer = matchMedia('(hover: hover) and (pointer: fine)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const sources = ['agent.jpg', 'huggingface.svg', 'github.svg', 'ollama.png', 'transformer.jpg', 'user.jpg', 'mcp.png'].map(name => `assets/trail-${name}`);
+  const sources = ['agent.jpg', 'huggingface.svg', 'github.svg', 'ollama.png', 'transformer-cutout.png', 'ai-cutout.png', 'mcp-cutout.png'].map(name => `assets/trail-${name}`);
   const active = [];
   let images = [];
   let loading;
@@ -48,6 +48,7 @@
     const logo = /huggingface|github|ollama/.test(picture.src);
     node.style.aspectRatio = logo ? '1' : String(picture.ratio);
     if (logo) node.classList.add('hero-trail-logo');
+    if (picture.src.includes('-cutout.')) node.classList.add('hero-trail-cutout');
     if (picture.ratio < 1 && !logo) node.style.width = '187px';
     node.style.left = `${x}px`;
     node.style.top = `${y}px`;
