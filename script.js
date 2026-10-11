@@ -15,6 +15,19 @@
   const pointer = { x: -1000, y: -1000 };
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const running = () => enabled && !preference.matches && !document.hidden && !printing;
+  const neuralNodes = Array.from({ length: 72 }, (_, i) => {
+    const y = 1 - (i / 71) * 2;
+    const radius = Math.sqrt(1 - y * y);
+    const angle = i * Math.PI * (3 - Math.sqrt(5));
+    return [Math.cos(angle) * radius, y, Math.sin(angle) * radius];
+  });
+  const neuralEdges = [];
+  neuralNodes.forEach((point, i) => {
+    neuralNodes.map((other, j) => ({ j, distance: Math.hypot(...point.map((v, axis) => v - other[axis])) }))
+      .filter(other => other.j !== i).sort((a, b) => a.distance - b.distance).slice(0, 3)
+      .forEach(({ j }) => { if (j > i) neuralEdges.push([i, j]); });
+  });
+  const drift = { x: 0, y: 0 };
 
   // One small canvas, capped resolution and 30 fps. No images or network requests.
   const resize = () => {
@@ -30,44 +43,74 @@
     context.clearRect(0, 0, width, height);
     const time = elapsed / 1000;
     const small = width < 761;
-    // Quiet circuit traces and a sparse dot grid, concentrated at the edges.
-    const spacing = small ? 64 : 56;
-    context.fillStyle = 'rgba(44,108,75,.075)';
-    for (let x = 24; x < width; x += spacing) {
-      if (x > width * .24 && x < width * .76) continue;
-      for (let y = 24; y < height; y += spacing) context.fillRect(x, y, 1, 1);
-    }
-    const count = small ? 4 : 6;
-    for (let lane = 0; lane < count; lane++) {
-      const right = lane % 2 === 1;
-      const inset = 18 + Math.floor(lane / 2) * (small ? 22 : 42);
-      const x = right ? width - inset : inset;
-      const bend = x + (right ? -1 : 1) * (small ? 24 : 48);
-      const y1 = height * (.2 + lane * .055);
-      const y2 = height * (.59 + lane * .045);
-      const points = [[x, -40], [x, y1], [bend, y1], [bend, y2], [x, y2], [x, height + 40]];
+    const heroStrength = 1 - Math.min(1, window.scrollY / Math.max(1, height)) * .45;
+    const targetX = finePointer.matches && pointer.x >= 0 ? (pointer.x / width - .5) * 22 : 0;
+    const targetY = finePointer.matches && pointer.y >= 0 ? (pointer.y / height - .5) * 16 : 0;
+    drift.x += (targetX - drift.x) * .045;
+    drift.y += (targetY - drift.y) * .045;
+    const radius = Math.min(width * (small ? .85 : .46), height * .68);
+    const centerX = width * (small ? .96 : .78) + drift.x;
+    const centerY = height * .48 + drift.y;
+    const turn = time * .055;
+    const project = ([x, y, z]) => {
+      const rx = x * Math.cos(turn) + z * Math.sin(turn);
+      const rz = z * Math.cos(turn) - x * Math.sin(turn);
+      const ry = y * .94 - rz * .34;
+      const depth = rz * .94 + y * .34;
+      const perspective = 2.8 / (2.8 - depth * .35);
+      return { x: centerX + rx * radius * perspective, y: centerY + ry * radius * perspective, depth };
+    };
+    // A projected neural sphere: restrained behind the text, brighter at the edges.
+    const halo = context.createRadialGradient(centerX, centerY, radius * .2, centerX, centerY, radius * 1.35);
+    halo.addColorStop(0, 'rgba(50,171,153,0)');
+    halo.addColorStop(.63, `rgba(50,171,153,${.07 * heroStrength})`);
+    halo.addColorStop(.8, `rgba(133,180,67,${.10 * heroStrength})`);
+    halo.addColorStop(1, 'rgba(50,171,153,0)');
+    context.fillStyle = halo; context.fillRect(0, 0, width, height);
+    for (let ring = 0; ring < 3; ring++) {
       context.beginPath();
-      points.forEach(([px, py], i) => i ? context.lineTo(px, py) : context.moveTo(px, py));
-      context.strokeStyle = 'rgba(44,108,75,.10)';
-      context.lineWidth = .75;
+      for (let step = 0; step <= 96; step++) {
+        const angle = step / 96 * Math.PI * 2;
+        const tilt = .55 + ring * .75;
+        const point = project([Math.cos(angle) * 1.10, Math.sin(angle) * Math.cos(tilt) * 1.10, Math.sin(angle) * Math.sin(tilt) * 1.10]);
+        if (!step) context.moveTo(point.x, point.y); else context.lineTo(point.x, point.y);
+      }
+      context.lineWidth = ring === 1 ? 1.1 : .7;
+      context.strokeStyle = ring === 1 ? `rgba(43,135,117,${.23 * heroStrength})` : `rgba(139,158,69,${.15 * heroStrength})`;
       context.stroke();
-      for (const [px, py] of [points[2], points[3]]) {
-        context.beginPath(); context.arc(px, py, 2.5, 0, Math.PI * 2);
-        context.fillStyle = '#f5f5ef'; context.fill();
-        context.strokeStyle = 'rgba(44,108,75,.20)'; context.stroke();
-      }
-      const lengths = points.slice(1).map(([px, py], i) => Math.abs(px - points[i][0]) + Math.abs(py - points[i][1]));
-      let distance = ((time * .018 + lane * .167) % 1) * lengths.reduce((sum, length) => sum + length, 0);
-      for (let segment = 0; segment < lengths.length; segment++) {
-        if (distance > lengths[segment]) { distance -= lengths[segment]; continue; }
-        const amount = distance / lengths[segment];
-        const px = points[segment][0] + (points[segment + 1][0] - points[segment][0]) * amount;
-        const py = points[segment][1] + (points[segment + 1][1] - points[segment][1]) * amount;
-        context.fillStyle = 'rgba(45,116,73,.32)';
-        context.fillRect(px - 1.5, py - 1.5, 3, 3);
-        break;
-      }
     }
+    const projected = neuralNodes.map(project);
+    const visibility = point => {
+      const textShield = small ? .6 : .35 + .65 * Math.min(1, Math.abs(point.x / width - .36) * 2.7);
+      return textShield * heroStrength * (.45 + (point.depth + 1.3) * .23);
+    };
+    neuralEdges.forEach(([a, b], i) => {
+      if (small && i % 2) return;
+      const p = projected[a], q = projected[b];
+      const strength = (visibility(p) + visibility(q)) / 2;
+      context.beginPath(); context.moveTo(p.x, p.y); context.lineTo(q.x, q.y);
+      context.lineWidth = .8; context.strokeStyle = `rgba(38,119,101,${.20 * strength})`; context.stroke();
+      if (i % 17 === 0) {
+        const progress = (time * .17 + i * .13) % 1;
+        const x = p.x + (q.x - p.x) * progress, y = p.y + (q.y - p.y) * progress;
+        context.beginPath(); context.arc(x, y, 2.2, 0, Math.PI * 2);
+        context.fillStyle = `rgba(20,147,123,${.65 * strength})`; context.fill();
+      }
+    });
+    projected.forEach((point, i) => {
+      if (small && i % 2) return;
+      const strength = visibility(point);
+      const size = 1.5 + (point.depth + 1.2) * .65;
+      if (i % 9 === 0) {
+        const glow = context.createRadialGradient(point.x, point.y, 0, point.x, point.y, 15);
+        glow.addColorStop(0, `rgba(31,162,135,${.20 * strength})`); glow.addColorStop(1, 'rgba(31,162,135,0)');
+        context.fillStyle = glow; context.fillRect(point.x - 15, point.y - 15, 30, 30);
+        context.beginPath(); context.arc(point.x, point.y, size + 4 + Math.sin(time * 1.2 + i) * 1.5, 0, Math.PI * 2);
+        context.strokeStyle = `rgba(37,141,117,${.2 * strength})`; context.stroke();
+      }
+      context.beginPath(); context.arc(point.x, point.y, size, 0, Math.PI * 2);
+      context.fillStyle = `rgba(36,121,99,${.5 * strength})`; context.fill();
+    });
     // The cursor glow is painted behind all content.
     if (finePointer.matches && pointer.x >= 0) {
       const glow = context.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 180);
