@@ -7,6 +7,10 @@
   const ambient = document.querySelector('.ambient');
   const projects = document.getElementById('experience');
   const context = canvas.getContext('2d');
+  const sectionCanvas = document.getElementById('ambient-sections');
+  const sectionContext = sectionCanvas.getContext('2d');
+  let viewportHeight = 0;
+  let fields = [];
   let enabled = !preference.matches;
   let frame = 0;
   let lastTime = 0;
@@ -31,7 +35,7 @@
       .forEach(({ j }) => { if (j > i) neuralEdges.push([i, j]); });
   });
 
-  // One small canvas, capped resolution and 30 fps. No images or network requests.
+  // Capped canvas resolution and 30 fps. No images or network requests.
   const resize = () => {
     width = window.innerWidth;
     projectsTop = 0;
@@ -42,6 +46,60 @@
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     context?.setTransform(ratio, 0, 0, ratio, 0, 0);
+    viewportHeight = window.innerHeight;
+    const sectionRatio = Math.min(window.devicePixelRatio || 1, 1.5, Math.sqrt(1500000 / (width * viewportHeight)));
+    sectionCanvas.width = Math.round(width * sectionRatio);
+    sectionCanvas.height = Math.round(viewportHeight * sectionRatio);
+    sectionContext?.setTransform(sectionRatio, 0, 0, sectionRatio, 0, 0);
+    // Store document coordinates once; the viewport-sized renderer avoids a huge bitmap.
+    fields = [];
+    const end = document.body.scrollHeight;
+    for (let y = projectsTop + 300, i = 0; y < end; y += 440, i++) {
+      fields.push({ y, side: i % 2, phase: i * 1.7 });
+    }
+  };
+  const drawSections = () => {
+    if (!sectionContext) return;
+    const ctx = sectionContext;
+    ctx.clearRect(0, 0, width, viewportHeight);
+    const time = elapsed / 1000;
+    const small = width < 761;
+    const span = small ? 140 : 290;
+    fields.forEach(field => {
+      const y = field.y - window.scrollY;
+      if (y < -320 || y > viewportHeight + 320) return;
+      const x = field.side ? width - (small ? 8 : 60) : (small ? 8 : 60);
+      const direction = field.side ? -1 : 1;
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, span);
+      glow.addColorStop(0, 'rgba(73,161,131,.085)');
+      glow.addColorStop(1, 'rgba(73,161,131,0)');
+      ctx.fillStyle = glow; ctx.fillRect(x - span, y - span, span * 2, span * 2);
+      // Three sparse layers suggest a neural network; only signals and node halos move.
+      const nodes = Array.from({ length: 12 }, (_, i) => ({
+        x: x + direction * ((i % 3) * span * .37 - span * .25),
+        y: y + Math.floor(i / 3) * 105 - 158 + Math.sin(i * 2 + field.phase) * 22
+      }));
+      nodes.forEach((p, i) => {
+        if (i % 3 < 2) {
+          [i + 1, i + 4].filter(j => j < nodes.length).forEach(j => {
+            const q = nodes[j];
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.lineWidth = .8; ctx.strokeStyle = 'rgba(48,120,101,.13)'; ctx.stroke();
+            if (i % 2 === 0) {
+              const t = (time * .13 + i * .19 + field.phase) % 1;
+              ctx.beginPath(); ctx.arc(p.x + (q.x - p.x) * t, p.y + (q.y - p.y) * t, 2, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(29,137,109,.42)'; ctx.fill();
+            }
+          });
+        }
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(52,124,102,.28)'; ctx.fill();
+        if (i % 4 === 0) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, 7 + Math.sin(time * .9 + i + field.phase) * 2, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(63,139,107,.16)'; ctx.stroke();
+        }
+      });
+    });
   };
   const draw = () => {
     if (!context) return;
@@ -125,6 +183,7 @@
       elapsed += Math.min(time - lastTime, 80);
       lastTime = time;
       draw();
+      drawSections();
     }
     frame = window.requestAnimationFrame(tick);
   };
@@ -171,6 +230,7 @@
   const progress = document.querySelector('.reading-progress');
   let scheduled = false;
   const updateProgress = () => {
+    if (running()) drawSections();
     const available = document.documentElement.scrollHeight - window.innerHeight;
     progress.style.width = `${available > 0 ? Math.min(100, Math.max(0, window.scrollY / available * 100)) : 0}%`;
     scheduled = false;
