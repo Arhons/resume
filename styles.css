@@ -34,8 +34,8 @@
 
 /* Motion layer: the document remains the same readable, static resume underneath. */
 @media screen {
-  body{isolation:isolate}
-  .ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+  body{isolation:isolate;position:relative}
+  .ambient{position:absolute;inset:0 0 auto;z-index:-1;pointer-events:none;overflow:hidden}
   #ambient-canvas{display:block;width:100%;height:100%;opacity:.9}
   .ambient-wash{position:absolute;border-radius:50%;pointer-events:none}
   .ambient-wash-a{width:1000px;height:1000px;right:-420px;top:-380px;background:radial-gradient(ellipse,#c8ddaa85 0%,#dce8c940 35%,transparent 67%)}

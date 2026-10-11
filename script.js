@@ -4,6 +4,8 @@
   const root = document.documentElement;
   const toggle = document.getElementById('motion-toggle');
   const canvas = document.getElementById('ambient-canvas');
+  const ambient = document.querySelector('.ambient');
+  const projects = document.getElementById('experience');
   const context = canvas.getContext('2d');
   let enabled = !preference.matches;
   let frame = 0;
@@ -11,6 +13,7 @@
   let elapsed = 0;
   let width = 0;
   let height = 0;
+  let projectsTop = 0;
   let printing = false;
   const pointer = { x: -1000, y: -1000 };
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -27,12 +30,14 @@
       .filter(other => other.j !== i).sort((a, b) => a.distance - b.distance).slice(0, 3)
       .forEach(({ j }) => { if (j > i) neuralEdges.push([i, j]); });
   });
-  const drift = { x: 0, y: 0 };
 
   // One small canvas, capped resolution and 30 fps. No images or network requests.
   const resize = () => {
     width = window.innerWidth;
-    height = window.innerHeight;
+    projectsTop = 0;
+    for (let element = projects; element; element = element.offsetParent) projectsTop += element.offsetTop;
+    height = Math.max(window.innerHeight, projectsTop + 180);
+    ambient.style.height = `${height}px`;
     const ratio = Math.min(window.devicePixelRatio || 1, 1.5, Math.sqrt(2500000 / (width * height)));
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
@@ -43,14 +48,10 @@
     context.clearRect(0, 0, width, height);
     const time = elapsed / 1000;
     const small = width < 761;
-    const heroStrength = 1 - Math.min(1, window.scrollY / Math.max(1, height)) * .45;
-    const targetX = finePointer.matches && pointer.x >= 0 ? (pointer.x / width - .5) * 22 : 0;
-    const targetY = finePointer.matches && pointer.y >= 0 ? (pointer.y / height - .5) * 16 : 0;
-    drift.x += (targetX - drift.x) * .045;
-    drift.y += (targetY - drift.y) * .045;
-    const radius = Math.min(width * (small ? .85 : .46), height * .68);
-    const centerX = width * (small ? .96 : .78) + drift.x;
-    const centerY = height * .48 + drift.y;
+    const heroStrength = 1;
+    const radius = Math.min(width * (small ? .64 : .29), 390);
+    const centerX = width * (small ? .16 : .20);
+    const centerY = projectsTop - radius * .78;
     const turn = time * .055;
     const project = ([x, y, z]) => {
       const rx = x * Math.cos(turn) + z * Math.sin(turn);
@@ -140,6 +141,7 @@
     if (!active) { window.cancelAnimationFrame(frame); frame = 0; }
   };
   resize();
+  document.fonts?.ready.then(resize);
   toggle.hidden = false;
   toggle.addEventListener('click', () => { enabled = !enabled; syncMotion(); });
   preference.addEventListener('change', () => { enabled = !preference.matches; syncMotion(); });
@@ -148,7 +150,7 @@
   window.addEventListener('afterprint', () => { printing = false; syncMotion(); });
   window.addEventListener('resize', resize);
   window.addEventListener('pointermove', event => {
-    if (running() && finePointer.matches) { pointer.x = event.clientX; pointer.y = event.clientY; }
+    if (running() && finePointer.matches) { pointer.x = event.pageX; pointer.y = event.pageY; }
   }, { passive: true });
   document.documentElement.addEventListener('pointerleave', () => { pointer.x = -1000; pointer.y = -1000; });
   syncMotion();
